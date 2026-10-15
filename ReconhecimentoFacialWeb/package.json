@@ -1,0 +1,29 @@
+{
+  "name": "reconhecimento-facial-web",
+  "version": "1.0.0",
+  "description": "Sistema Web Completo de Reconhecimento Facial com Embeddings (Node.js e JavaScript)",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup-models.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "face-recognition",
+    "embeddings",
+    "biometrics",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Academic Project",
+  "license": "MIT",
+  "dependencies": {
+    "@vladmandic/face-api": "^1.7.15",
+    "better-sqlite3": "^13.0.3",
+    "cookie-parser": "^1.4.7",
+    "esbuild": "^0.28.2",
+    "express": "^5.3.0"
+  }
+}

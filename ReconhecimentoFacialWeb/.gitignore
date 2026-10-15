@@ -1,0 +1,30 @@
+# Dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Banco de dados local SQLite e arquivos de lock
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+
+# Segredos, variáveis de ambiente e sessões
+.env
+.env.local
+.env.*.local
+
+# Logs e diretórios de execução temporários
+logs/
+*.log
+npm-debug.log*
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build de distribuição (opcional se gerado via npm run build)
+# public/dist/

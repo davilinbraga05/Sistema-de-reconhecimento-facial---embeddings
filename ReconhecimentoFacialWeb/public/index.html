@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistema Web Completo de Reconhecimento Facial com Embeddings e Comparação Vetorial Euclidiana utilizando Node.js e JavaScript.">
+  <title>BioAccess AI — Reconhecimento Facial com Embeddings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="dark-theme">
+  <!-- Layout Principal -->
+  <div class="app-container">
+    
+    <!-- Topbar / Cabeçalho -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5z"></path>
+            <path d="M4 22a8 8 0 0 1 16 0"></path>
+            <circle cx="9" cy="9" r="1" fill="currentColor"></circle>
+            <circle cx="15" cy="9" r="1" fill="currentColor"></circle>
+            <path d="M12 12v1.5"></path>
+            <path d="M10 16a3.5 3.5 0 0 0 4 0"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>BioAccess <span>AI</span></h1>
+          <span class="subtext">Reconhecimento Facial por Embeddings</span>
+        </div>
+      </div>
+
+      <!-- Indicadores de Status em Tempo Real -->
+      <div class="status-pills">
+        <div class="status-pill" id="pill-server">
+          <span class="dot"></span>
+          <span class="label">Servidor:</span>
+          <span class="val" id="val-server">Conectando...</span>
+        </div>
+        <div class="status-pill" id="pill-models">
+          <span class="dot"></span>
+          <span class="label">Modelos IA:</span>
+          <span class="val" id="val-models">Iniciando...</span>
+        </div>
+        <div class="status-pill" id="pill-camera">
+          <span class="dot"></span>
+          <span class="label">Câmera:</span>
+          <span class="val" id="val-camera">Em espera</span>
+        </div>
+        <div class="status-pill" id="pill-users">
+          <span class="dot"></span>
+          <span class="label">Cadastros:</span>
+          <span class="val" id="val-users">0</span>
+        </div>
+      </div>
+
+      <!-- Botão de Sessão Administrativa -->
+      <div class="auth-bar">
+        <button id="btn-admin-auth" class="btn btn-secondary btn-sm">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span id="txt-admin-auth">Acesso Admin</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Barra de Navegação por Abas -->
+    <nav class="navigation-tabs" role="tablist">
+      <button class="nav-tab active" data-tab="tab-dashboard" id="nav-btn-dashboard">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Visão Geral
+      </button>
+      <button class="nav-tab" data-tab="tab-recognition" id="nav-btn-recognition">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <circle cx="12" cy="10" r="3"></circle>
+          <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
+        </svg>
+        Reconhecimento Ao Vivo
+      </button>
+      <button class="nav-tab" data-tab="tab-registration" id="nav-btn-registration">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <line x1="20" y1="8" x2="20" y2="14"></line>
+          <line x1="23" y1="11" x2="17" y2="11"></line>
+        </svg>
+        Cadastro Facial
+      </button>
+      <button class="nav-tab" data-tab="tab-users" id="nav-btn-users">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Usuários Cadastrados
+      </button>
+      <button class="nav-tab" data-tab="tab-history" id="nav-btn-history">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Histórico de Acesso
+      </button>
+      <button class="nav-tab" data-tab="tab-settings" id="nav-btn-settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Configurações & Threshold
+      </button>
+    </nav>
+
+    <!-- Conteúdo das Abas -->
+    <main class="tab-content-area">
+
+      <!-- ========================================== -->
+      <!-- ABA 1: VISÃO GERAL / DASHBOARD -->
+      <!-- ========================================== -->
+      <section class="tab-pane active" id="tab-dashboard">
+        <div class="dashboard-hero">
+          <div class="hero-text">
+            <h2>Controle de Acesso Biométrico com Embeddings</h2>
+            <p>Sistema acadêmico em JavaScript e Node.js para demonstração de visão computacional, redes neurais convolucionais e classificação vetorial em espaço hiperdimensional euclidiano.</p>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-primary" id="btn-quick-recognize">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+              Iniciar Reconhecimento
+            </button>
+            <button class="btn btn-secondary" id="btn-quick-register">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+              Novo Cadastro Facial
+            </button>
+          </div>
+        </div>
+
+        <!-- Métricas Rápidas -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon users-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Pessoas Cadastradas</span>
+              <span class="stat-number" id="dash-total-users">0</span>
+              <span class="stat-sub" id="dash-active-users">0 autorizados</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon vector-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Embeddings no Banco</span>
+              <span class="stat-number" id="dash-total-embeddings">0</span>
+              <span class="stat-sub">128 dimensões por vetor</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon threshold-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Threshold de Tolerância</span>
+              <span class="stat-number" id="dash-threshold">0.55</span>
+              <span class="stat-sub">Distância Euclidiana máxima</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon model-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Redes Neurais Locais</span>
+              <span class="stat-number" id="dash-model-status">Prontas</span>
+              <span class="stat-sub">TinyFace + 68 Landmarks + ResNet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Explicativo Matemático -->
+        <div class="academic-card">
+          <div class="card-header">
+            <h3>Fundamentação Matemática: Embeddings e Distância Euclidiana</h3>
+            <span class="badge badge-info">Demonstração Acadêmica</span>
+          </div>
+          <div class="academic-content">
+            <div class="math-col">
+              <h4>O que é um Embedding Facial?</h4>
+              <p>O modelo <code>FaceRecognitionNet</code> recebe a imagem alinhada pelos 68 marcos anatômicos da face e gera um vetor contínuo de <strong>128 números de ponto flutuante</strong>:</p>
+              <div class="code-box">
+                <code>V = [v₀, v₁, v₂, ..., v₁₂₇] ∈ ℝ¹²⁸</code>
+              </div>
+              <p>Rostos da mesma pessoa mapeiam para coordenadas próximas no espaço 128-dimensional, enquanto rostos diferentes são projetados para distâncias maiores.</p>
+            </div>
+            <div class="math-col">
+              <h4>Métrica de Decisão (Distância Euclidiana)</h4>
+              <p>A distância entre o vetor capturado <em>A</em> e a amostra cadastrada <em>B</em> é calculada por:</p>
+              <div class="code-box">
+                <code>d(A, B) = √( ∑ᵢ₌₀¹²⁷ (A[i] - B[i])² )</code>
+              </div>
+              <p><strong>Regra de Decisão:</strong> Se <code>d(A, B) ≤ Threshold</code> e a margem contra o segundo colocado for suficiente, o acesso é <strong>LIBERADO</strong>; caso contrário, é <strong>NEGADO</strong>.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- ABA 2: RECONHECIMENTO AO VIVO -->
+      <!-- ========================================== -->
+      <section class="tab-pane" id="tab-recognition">
+        <div class="recognition-layout">
+          
+          <!-- Câmera e Canvas Overlay -->
+          <div class="video-container-card">
+            <div class="video-header">
+              <div class="video-title">
+                <span class="live-dot" id="rec-live-indicator"></span>
+                <h3>Câmera de Reconhecimento</h3>
+              </div>
+              <div class="video-controls">
+                <select id="rec-camera-select" class="select-sm" title="Selecionar dispositivo de vídeo">
+                  <option value="">Carregando câmeras...</option>
+                </select>
+                <button id="btn-toggle-recognition-camera" class="btn btn-primary btn-sm">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  Iniciar Câmera
+                </button>
+              </div>
+            </div>
+
+            <div class="viewport-wrapper" id="rec-viewport">
+              <video id="rec-video" autoplay muted playsinline></video>
+              <canvas id="rec-canvas"></canvas>
+
+              <!-- Feedback visual sobre o vídeo -->
+              <div class="video-overlay-msg" id="rec-overlay-msg">
+                <div class="overlay-spinner" id="rec-overlay-spinner"></div>
+                <span id="rec-overlay-text">Câmera inativa. Clique em "Iniciar Câmera" para começar.</span>
+              </div>
+            </div>
+
+            <div class="video-footer">
+              <div class="detector-stats">
+                <span>FPS: <strong id="rec-fps">0</strong></span>
+                <span>Rostos: <strong id="rec-faces-count">0</strong></span>
+                <span>Estabilidade Temporal: <strong id="rec-temporal-score">0/3</strong></span>
+              </div>
+              <div class="camera-hint">
+                Dica: Mantenha iluminação uniforme e olhe diretamente para a lente.
+              </div>
+            </div>
+          </div>
+
+          <!-- Painel Lateral de Decisão e Diagnóstico -->
+          <div class="decision-panel-card">
+            <h3>Resultado da Verificação</h3>
+            
+            <!-- Banner de Decisão em Destaque -->
+            <div class="decision-banner state-standby" id="decision-banner">
+              <div class="decision-icon" id="decision-icon">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="decision-headline" id="decision-headline">AGUARDANDO DETECÇÃO</div>
+              <div class="decision-sub" id="decision-sub">Posicione-se diante da câmera para identificação.</div>
+            </div>
+
+            <!-- Dados da Identificação -->
+            <div class="decision-details">
+              <div class="detail-row">
+                <span class="detail-label">Identidade:</span>
+                <span class="detail-value highlight" id="dec-user-name">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Distância Calculada:</span>
+                <span class="detail-value mono" id="dec-distance">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Threshold Ativo:</span>
+                <span class="detail-value mono" id="dec-threshold">0.550</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Margem de Separação:</span>
+                <span class="detail-value mono" id="dec-margin">—</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Diagnóstico do Motor:</span>
+                <span class="detail-value" id="dec-reason">Aguardando vetor de entrada</span>
+              </div>
+            </div>
+
+            <!-- Log Rápido das Últimas Verificações -->
+            <div class="recent-decisions-card">
+              <h4>Últimas Verificações</h4>
+              <ul class="recent-log-list" id="rec-recent-log">
+                <li class="log-empty">Nenhuma inferência registrada nesta sessão.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- ABA 3: CADASTRO FACIAL -->
+      <!-- ========================================== -->
+      <section class="tab-pane" id="tab-registration">
+        <div class="registration-wizard">
+          
+          <div class="wizard-header">
+            <h2>Cadastro Biométrico Facial</h2>
+            <p>O cadastro requer a coleta de 8 amostras de embeddings faciais com ligeiras variações naturais de ângulo e iluminação para maximizar a precisão da comparação matemática.</p>
+          </div>
+
+          <div class="registration-grid">
+            
+            <!-- Etapa 1 e Formulário -->
+            <div class="card reg-form-card">
+              <h3>1. Dados e Consentimento</h3>
+              
+              <div class="form-group">
+                <label for="reg-name-input">Nome Completo do Usuário:</label>
+                <input type="text" id="reg-name-input" class="input-text" placeholder="Ex: Roberto Alencar" autocomplete="off">
+              </div>
+
+              <div class="consent-box">
+                <label class="checkbox-container">
+                  <input type="checkbox" id="reg-consent-checkbox">
+                  <span class="checkmark"></span>
+                  <span class="consent-text">
+                    <strong>Termo de Consentimento Biométrico Acadêmico:</strong><br>
+                    Autorizo a captura dos descritores matemáticos (vetores de 128 dimensões) do meu rosto para fins estritos de demonstração acadêmica e controle de acesso biométrico local. Compreendo que nenhuma imagem de foto/vídeo será armazenada permanentemente no servidor.
+                  </span>
+                </label>
+              </div>
+
+              <!-- Status do Wizard -->
+              <div class="wizard-status-card" id="reg-wizard-status">
+                <div class="status-step-title" id="reg-step-title">Etapa: Aguardando Inicialização</div>
+                <div class="status-step-desc" id="reg-step-desc">Preencha o nome e aceite o consentimento para ativar a câmera.</div>
+                
+                <!-- Barra de Progresso das Amostras -->
+                <div class="progress-container">
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="reg-progress-fill" style="width: 0%;"></div>
+                  </div>
+                  <div class="progress-labels">
+                    <span id="reg-sample-count-txt">Amostras: 0 de 8</span>
+                    <span id="reg-progress-percent">0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Controles de Ação do Cadastro -->
+              <div class="reg-actions">
+                <button id="btn-start-registration-camera" class="btn btn-secondary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  Ativar Câmera
+                </button>
+                <button id="btn-capture-samples" class="btn btn-primary" disabled>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                  Capturar 8 Amostras
+                </button>
+                <button id="btn-cancel-registration" class="btn btn-danger" disabled>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+
+            <!-- Visualização da Câmera no Cadastro -->
+            <div class="card reg-camera-card">
+              <div class="video-header">
+                <h3>Visualização e Enquadramento Facial</h3>
+                <span class="badge badge-warning" id="reg-camera-badge">Aguardando Câmera</span>
+              </div>
+
+              <div class="viewport-wrapper reg-viewport" id="reg-viewport">
+                <video id="reg-video" autoplay muted playsinline></video>
+                <canvas id="reg-canvas"></canvas>
+
+                <!-- Máscara de Enquadramento Oval -->
+                <div class="face-guide-oval" id="face-guide-oval">
+                  <div class="oval-border"></div>
+                </div>
+
+                <div class="video-overlay-msg" id="reg-overlay-msg">
+                  <span id="reg-overlay-text">Ative a câmera para iniciar o enquadramento facial.</span>
+                </div>
+              </div>
+
+              <!-- Indicadores de Qualidade em Tempo Real -->
+              <div class="quality-checks-grid">
+                <div class="quality-item" id="q-check-face">
+                  <span class="q-icon">○</span>
+                  <span class="q-label">Exatamente 1 rosto</span>
+                </div>
+                <div class="quality-item" id="q-check-position">
+                  <span class="q-icon">○</span>
+                  <span class="q-label">Centralização e distância</span>
+                </div>
+                <div class="quality-item" id="q-check-landmarks">
+                  <span class="q-icon">○</span>
+                  <span class="q-label">Alinhamento 68 pontos</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- ABA 4: GERENCIAR USUÁRIOS -->
+      <!-- ========================================== -->
+      <section class="tab-pane" id="tab-users">
+        <div class="card full-card">
+          <div class="card-header flex-between">
+            <div>
+              <h2>Usuários e Cadastros Biométricos</h2>
+              <p>Gerencie o status de autorização, renomeação ou exclusão definitiva de cadastros biométricos.</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-refresh-users">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Atualizar Lista
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabela de Usuários -->
+          <div class="table-container">
+            <table class="data-table" id="users-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome Completo</th>
+                  <th>Status de Acesso</th>
+                  <th>Amostras (128-d)</th>
+                  <th>Data de Cadastro</th>
+                  <th>Ações Administrativas</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body">
+                <tr>
+                  <td colspan="6" class="text-center">Carregando cadastros...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- ABA 5: HISTÓRICO DE ACESSO -->
+      <!-- ========================================== -->
+      <section class="tab-pane" id="tab-history">
+        <div class="card full-card">
+          <div class="card-header flex-between">
+            <div>
+              <h2>Auditoria e Histórico de Acessos</h2>
+              <p>Registro de tentativas de reconhecimento com decisão matemática fundamentada.</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-refresh-history">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Atualizar
+              </button>
+              <button class="btn btn-danger btn-sm" id="btn-clear-history">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Limpar Histórico
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table" id="history-table">
+              <thead>
+                <tr>
+                  <th>Data / Horário</th>
+                  <th>Resultado</th>
+                  <th>Identidade</th>
+                  <th>Distância Euclidiana</th>
+                  <th>Motivo / Diagnóstico</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <tr>
+                  <td colspan="5" class="text-center">Carregando histórico...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- ABA 6: CONFIGURAÇÕES & THRESHOLD -->
+      <!-- ========================================== -->
+      <section class="tab-pane" id="tab-settings">
+        <div class="settings-grid">
+          
+          <!-- Painel de Calibração Matemática -->
+          <div class="card settings-card">
+            <h3>Parâmetros de Classificação Biométrica</h3>
+            <p>Ajuste os limiares matemáticos do motor de decisão euclidiano.</p>
+
+            <div class="setting-item">
+              <div class="setting-header">
+                <label for="input-threshold"><strong>Threshold de Reconhecimento:</strong></label>
+                <span class="setting-val-display" id="display-threshold">0.550</span>
+              </div>
+              <input type="range" id="input-threshold" min="0.25" max="0.95" step="0.01" value="0.55" class="slider">
+              <div class="slider-labels">
+                <span>0.25 (Mais Rigoroso)</span>
+                <span>0.55 (Padrão Recomendado)</span>
+                <span>0.95 (Mais Tolerante)</span>
+              </div>
+              <p class="setting-description">
+                Distância euclidiana máxima permitida entre o vetor capturado e o perfil cadastrado. Valores menores reduzem drasticamente falsos positivos, enquanto valores maiores facilitam o reconhecimento sob iluminação variável.
+              </p>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-header">
+                <label for="input-margin"><strong>Margem Mínima de Ambiguidade:</strong></label>
+                <span class="setting-val-display" id="display-margin">0.050</span>
+              </div>
+              <input type="range" id="input-margin" min="0.01" max="0.20" step="0.005" value="0.05" class="slider">
+              <div class="slider-labels">
+                <span>0.01 (Tolerante)</span>
+                <span>0.05 (Equilibrado)</span>
+                <span>0.20 (Separação Rígida)</span>
+              </div>
+              <p class="setting-description">
+                Separação mínima exigida entre o melhor candidato (1º colocado) e o segundo mais próximo (2º colocado). Se a diferença for menor que este valor, a decisão é classificada como ambígua e o acesso é negado por segurança.
+              </p>
+            </div>
+
+            <div class="card-footer">
+              <button id="btn-save-settings" class="btn btn-primary">
+                Salvar Configurações
+              </button>
+              <button id="btn-reset-settings" class="btn btn-secondary">
+                Restaurar Padrões
+              </button>
+            </div>
+          </div>
+
+          <!-- Informações de Segurança e Privacidade LGPD -->
+          <div class="card privacy-card">
+            <h3>Privacidade e Limitações Biométricas</h3>
+            
+            <div class="privacy-callout alert-warning">
+              <h4>Aviso Importante: Ataques de Apresentação (Spoofing)</h4>
+              <p>Este sistema opera com webcam convencional 2D sem sensores de profundidade (IR / LiDAR) ou algoritmo de vivacidade ativa (liveness). Portanto, uma fotografia ou tela de celular pode enganar o modelo. Este software destina-se a fins estritamente acadêmicos e educacionais e <strong>NÃO DEVE</strong> ser utilizado para acionamento de portas, catracas ou instalações físicas de alta segurança.</p>
+            </div>
+
+            <div class="privacy-callout alert-info">
+              <h4>Tratamento de Dados Biométricos Sensíveis</h4>
+              <ul>
+                <li><strong>Sem armazenamento de fotos:</strong> O banco de dados SQLite armazena apenas vetores abstratos de 128 dimensões. Nenhuma imagem real ou vídeo é mantido em disco.</li>
+                <li><strong>Localhost restrito:</strong> A aplicação e as APIs escutam unicamente na interface de loopback local (<code>127.0.0.1:3000</code>).</li>
+                <li><strong>Direito ao esquecimento:</strong> Ao excluir um usuário na aba de gerenciamento, todos os seus vetores de embedding são imediatamente apagados em cascata.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal de Autenticação com PIN Administrativo -->
+  <div class="modal-backdrop" id="modal-admin-pin" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-pin-title">Autenticação Administrativa</h3>
+        <button class="modal-close" id="btn-close-pin-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="modal-pin-desc">Digite o PIN administrativo para continuar:</p>
+        <div class="pin-input-group">
+          <input type="password" id="input-admin-pin" class="input-text text-center pin-input" maxlength="12" placeholder="••••" autofocus>
+        </div>
+        <div class="modal-error" id="modal-pin-error" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-pin">Cancelar</button>
+        <button class="btn btn-primary" id="btn-submit-pin">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição de Nome -->
+  <div class="modal-backdrop" id="modal-edit-user" style="display: none;">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Editar Nome do Usuário</h3>
+        <button class="modal-close" id="btn-close-edit-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-user-id">
+        <div class="form-group">
+          <label for="edit-user-name">Novo Nome:</label>
+          <input type="text" id="edit-user-name" class="input-text">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-edit">Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-edit">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Alerta de Duplicidade no Cadastro -->
+  <div class="modal-backdrop" id="modal-duplicate-alert" style="display: none;">
+    <div class="modal-dialog modal-warning">
+      <div class="modal-header">
+        <h3>Alerta de Possível Duplicidade Facial</h3>
+        <button class="modal-close" id="btn-close-duplicate-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="duplicate-modal-msg">O rosto capturado possui alta similaridade com um usuário já existente.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-abort-duplicate">Cancelar Cadastro</button>
+        <button class="btn btn-danger" id="btn-force-duplicate">Cadastrar Mesmo Assim</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts / Notificações Flutuantes -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts: Primeiro o bundle face-api, depois o app.js -->
+  <script src="/dist/face-api.js"></script>
+  <script src="/dist/app.js"></script>
+</body>
+</html>
